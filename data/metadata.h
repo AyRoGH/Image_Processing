@@ -1,0 +1,21 @@
+typedef struct {
+	double		aperture		;
+	double		exposure_compensation	;
+	double		focal_lenght		;
+	double		gps_lattitude		;
+	double		gps_longitude		;
+	double		shutter_speed		;
+	uint8_t		*artist			;
+	uint8_t		*camera_model		;
+	uint8_t		*comments		;
+	uint8_t		*copyright		;
+	uint8_t		*creation_data		;
+	uint8_t		*lens			;
+	uint8_t		*software		;
+	uint8_t		*resolution_unit	;
+	uint8_t		*white_balance		;
+	uint32_t	iso			;
+	uint32_t	orientation		;
+	uint32_t	color_temperature	;
+	uint32_t	flash			;
+} metadata_t;
