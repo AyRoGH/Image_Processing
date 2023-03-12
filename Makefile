@@ -6,10 +6,10 @@ LDFLAGS = -L$(LIBSDIR)
 LDLIBS = -lbmp -lconvolution -limgdata -lfiles -lkernel
 
 # all
-all: $(LIBSDIR)/libbmp.so $(LIBSDIR)/libconvolution.so $(LIBSDIR)/libimgdata.so $(LIBSDIR)/libfiles.so $(LIBSDIR)/libkernel.so $(OUTDIR)/airi $(OUTDIR)/airi.sh
+all: $(LIBSDIR)/libbmp.so $(LIBSDIR)/libconvolution.so $(LIBSDIR)/libimgdata.so $(LIBSDIR)/libfiles.so $(LIBSDIR)/libkernel.so $(OUTDIR)/image_processing $(OUTDIR)/image_processing.sh
 
 # *.o
-$(LIBSDIR)/airi.o: airi.c | $(OUTDIR) $(LIBSDIR)
+$(LIBSDIR)/image_processing.o: main/image_processing.c | $(OUTDIR) $(LIBSDIR)
 	$(CC) -c -g -o $@ $<
 
 $(LIBSDIR)/bmp.o: bmp/bmp.c | $(OUTDIR) $(LIBSDIR)
@@ -28,7 +28,7 @@ $(LIBSDIR)/kernel.o: kernel/kernel.c | $(OUTDIR) $(LIBSDIR)
 	$(CC) -c -g -fPIC -o $@ $<
 
 # exe
-$(OUTDIR)/airi: $(LIBSDIR)/airi.o $(LIBSDIR)/libbmp.so $(LIBSDIR)/libconvolution.so $(LIBSDIR)/libimgdata.so $(LIBSDIR)/libfiles.so $(LIBSDIR)/libkernel.so
+$(OUTDIR)/image_processing: $(LIBSDIR)/image_processing.o $(LIBSDIR)/libbmp.so $(LIBSDIR)/libconvolution.so $(LIBSDIR)/libimgdata.so $(LIBSDIR)/libfiles.so $(LIBSDIR)/libkernel.so
 	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS) $(LDLIBS)
 	rm -f $(LIBSDIR)/*.o
 
@@ -48,11 +48,11 @@ $(LIBSDIR)/libfiles.so: $(LIBSDIR)/files.o
 $(LIBSDIR)/libkernel.so: $(LIBSDIR)/kernel.o
 	$(CC) -shared -o $@ $<
 
-# airi.sh
-$(OUTDIR)/airi.sh: $(OUTDIR)/airi
+# image_processing.sh
+$(OUTDIR)/image_processing.sh: $(OUTDIR)/image_processing
 	echo '#!/bin/sh' > $@
 	echo 'export LD_LIBRARY_PATH=libs:$$LD_LIBRARY_PATH' >> $@
-	echo './airi' >> $@
+	echo './image_processing' >> $@
 	chmod +x $@
 
 # out & out/libs
@@ -64,7 +64,7 @@ $(LIBSDIR):
 
 # clean
 clean:
-	rm -rf $(LIBSDIR)/*.o $(LIBSDIR)/*.so $(OUTDIR)/airi $(OUTDIR)/*.sh
+	rm -rf $(LIBSDIR)/*.o $(LIBSDIR)/*.so $(OUTDIR)/image_processing $(OUTDIR)/*.sh
 	rmdir $(LIBSDIR)
 	rmdir $(OUTDIR)
 

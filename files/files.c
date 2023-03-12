@@ -48,26 +48,26 @@ static int stdin_read(	file_t	*WORK_FILE	)
 		new_line_pos	= -1		;
 	uint8_t	temp_buf[__MAX_INPUT_SIZE__]	;
 	/* ==================== */
-	printf(" >> ");
 	for(int loop_err = 0; loop_err < __MAX_INPUT_ERROR__; loop_err++) {
+		printf(" >> ");
 		if(fgets((char*)temp_buf, __MAX_INPUT_SIZE__, stdin) == NULL) {
-			printf(" =!> ERROR : invalid input, please retry.\n >> ");
+			printf(" =!> ERROR : invalid input, please retry.\n");
 			temp_buf_reset(temp_buf);
 			continue;
 		}
 		else {
 			if(temp_buf[0] == 0x0a) {
-				printf(" =!> ERROR : empty file name not allowed, please retry\n >> ");
+				printf(" =!> ERROR : empty file name not allowed, please retry\n");
 				temp_buf_reset(temp_buf);
 				continue;
 			}
 			else if(input_validity(&point_pos, &new_line_pos, temp_buf) != __NO_ERROR__) {
-				printf(" =!> ERROR : use of forbidden characters, please retry.\n >> ");
+				printf(" =!> ERROR : use of forbidden characters, please retry.\n");
 				temp_buf_reset(temp_buf);
 				continue;
 			}
 			else if(new_line_pos == -1) {
-				printf(" =!> ERROR : invalid input, please retry\n >> ");
+				printf(" =!> ERROR : invalid input, please retry\n");
 				temp_buf_reset(temp_buf);
 				continue;
 			}
@@ -78,7 +78,7 @@ static int stdin_read(	file_t	*WORK_FILE	)
 	}
 	WORK_FILE -> extension_size = point_pos != -1 ? (size_t)(new_line_pos - point_pos - 1) : 0;
 	WORK_FILE -> full_size = (size_t)new_line_pos;
-	WORK_FILE -> name_size = point_pos != -1 ? (point_pos == 0 ? 0 : (size_t)point_pos) : (size_t)point_pos;
+	WORK_FILE -> name_size = point_pos != -1 ? (point_pos == 0 ? 0 : (size_t)point_pos) : 0;
 	if(WORK_FILE -> extension_size != 0) {
 		WORK_FILE -> extension = (uint8_t*)calloc(WORK_FILE -> extension_size, sizeof(uint8_t));
 		if(WORK_FILE -> extension == NULL) {
@@ -120,7 +120,6 @@ static int file_existance(	file_t	*WORK_FILE	)
 	}
 	return __NO_ERROR__;
 }
-
 static int get_file_size(	file_t	*WORK_FILE	)
 {
 	fseek(WORK_FILE -> file_ptr, 0, SEEK_END);
@@ -185,7 +184,7 @@ int creator(	file_t	*WORK_FILE	)
 
 void fdelete(	file_t	*WORK_FILE	)
 {
-	free(WORK_FILE -> file_ptr);
+        fclose(WORK_FILE -> file_ptr);
 	free(WORK_FILE -> extension);
 	free(WORK_FILE -> full);
 	free(WORK_FILE -> name);

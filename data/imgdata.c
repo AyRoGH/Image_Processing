@@ -9,29 +9,29 @@
 // DATA HEADER
 #include "imgdata.h"
 
-int alloc(	imgdata_t	*IMAGE,
+int alloc(	imgdata_t	*WORK_IMGDATA,
 		size_t		BITDEPTH,
 		size_t		HEIGHT,
 		size_t		WIDTH		)
 {
-	if(!(IMAGE -> bitdepth) || !(IMAGE -> height) || !(IMAGE -> width) || !BITDEPTH || !HEIGHT || !WIDTH) {
+	if(!BITDEPTH || !HEIGHT || !WIDTH) {
 		return __INVALID_ALLOC_SIZE__;
 	}
-	IMAGE -> bitdepth = BITDEPTH;
-	IMAGE -> height = HEIGHT;
-	IMAGE -> width = WIDTH;
-	IMAGE -> data = (double***)calloc(IMAGE -> height, sizeof(double**));
-	if(IMAGE -> data == NULL) {
+	WORK_IMGDATA -> bitdepth = BITDEPTH;
+	WORK_IMGDATA -> height = HEIGHT;
+	WORK_IMGDATA -> width = WIDTH;
+	WORK_IMGDATA -> data = (double***)calloc(WORK_IMGDATA -> height, sizeof(double**));
+	if(WORK_IMGDATA -> data == NULL) {
 		return __OUT_OF_MEMORY__;
 	}
-	for(size_t x = 0; x < IMAGE -> height; x++) {
-		(IMAGE -> data)[x] = (double**)calloc(IMAGE -> width, sizeof(double*));
-		if((IMAGE -> data)[x] == NULL) {
+	for(size_t x = 0; x < WORK_IMGDATA -> height; x++) {
+		(WORK_IMGDATA -> data)[x] = (double**)calloc(WORK_IMGDATA -> width, sizeof(double*));
+		if((WORK_IMGDATA -> data)[x] == NULL) {
 			return __OUT_OF_MEMORY__;
 		}
-		for(size_t y = 0; y < IMAGE -> width; y++) {
-			(IMAGE -> data)[x][y] = (double*)calloc(IMAGE -> bitdepth, sizeof(double));
-			if((IMAGE -> data)[x][y] == NULL) {
+		for(size_t y = 0; y < WORK_IMGDATA -> width; y++) {
+			(WORK_IMGDATA -> data)[x][y] = (double*)calloc(WORK_IMGDATA -> bitdepth, sizeof(double));
+			if((WORK_IMGDATA -> data)[x][y] == NULL) {
 				return __OUT_OF_MEMORY__;
 			}
 		}
@@ -39,18 +39,18 @@ int alloc(	imgdata_t	*IMAGE,
 	return __NO_ERROR__;
 }
 
-int dealloc(	imgdata_t	*IMAGE	)
+int dealloc(	imgdata_t	*WORK_IMGDATA	)
 {
-	if(!(IMAGE -> bitdepth) || !(IMAGE -> height) || !(IMAGE -> width)) {
+	if(!(WORK_IMGDATA -> bitdepth) || !(WORK_IMGDATA -> height) || !(WORK_IMGDATA -> width)) {
 		return __INVALID_ALLOC_SIZE__;
 	}
-	for(size_t x = 0; x < IMAGE -> height; x++) {
-		for(size_t y = 0; y < IMAGE -> width; y++) {
-			free((IMAGE -> data)[x][y]);
+	for(size_t x = 0; x < WORK_IMGDATA -> height; x++) {
+		for(size_t y = 0; y < WORK_IMGDATA -> width; y++) {
+			free((WORK_IMGDATA -> data)[x][y]);
 		}
-		free((IMAGE -> data)[x]);
+		free((WORK_IMGDATA -> data)[x]);
 	}
-	free(IMAGE -> data);
+	free(WORK_IMGDATA -> data);
 	return __NO_ERROR__;
 }
 

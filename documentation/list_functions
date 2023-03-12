@@ -1,0 +1,50 @@
+// BMP
+int bmp.is_bmp(file_t *WORK_FILE) :
+	__INVALID_FILE_EXTENSION__ 
+	__NO_ERROR__
+int bmp.read(file_t *WORK_FILE, imgdata_t *WORK_IMGDATA) :
+	__INVALID_FILE_EXTENSION__
+	__INVALID_FILE_SIZE__
+	__INVALID_FILE__
+	__INVALID_FILE_VALUE__
+	__INVALID_ALLOC_SIZE__
+	__FILE_READ_ERROR__
+	__NO_ERROR__
+	__OUT_OF_MEMORY__
+int bmp.write(file_t *IMG_FILE, imgdata_t *WORK_IMGDATA) :
+	__FILE_WRITE_ERROR__
+	__ERROR__
+	__OUT_OF_MEMORY__
+	__NO_ERROR__
+
+// IMGDATA
+int imgdata.alloc(imgdata_t *WORK_IMGDATA, size_t BITDEPTH, size_t HEADER, size_t WIDTH) :
+	__INVALID_ALLOC_SIZE__
+	__OUT_OF_MEMORY__
+	__NO_ERROR__
+
+int imgdata.dealloc(imgdata_t *WORK_IMGDATA) :
+	__NO_ERROR__
+
+// FILES
+int file.creator(file_t *WORK_FILE) :
+	__OUT_OF_MEMORY__
+	__ERROR__
+	__INVALID_FILE__
+	__INVALID_FILE_SIZE__
+	__INVALID_FILE_NAME__
+	__NO_ERROR___
+void file.fdelete(file_t *WORK_FILE)
+int file.get(file_t *WORK_FILE) :
+	__OUT_OF_MEMORY__
+	__ERROR__
+	__INVALID_FILE__
+	__INVALID_FILE_SIZE__
+	__INVALID_FILE_NAME__
+	__NO_ERROR__
+
+// CONVOLUTION
+int convolution(imgdata_t *WORK_IMGDATA, kernel_t *KERNEL) :
+	__ERROR__
+	__OUT_OF_MEMORY__
+	__NO_ERROR__

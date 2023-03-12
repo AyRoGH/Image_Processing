@@ -2,13 +2,13 @@
 #define __BMP_IO_H__
 
 static int header_read(	bmp_header_t	*HEADER,
-			file_t		*IMG_FILE	)
+			file_t		*WORK_FILE	)
 {
-	if(fread(HEADER, sizeof(bmp_header_t), 1, IMG_FILE -> file_ptr) == 1) {
+	if(fread(HEADER, sizeof(bmp_header_t), 1, WORK_FILE -> file_ptr) == 1) {
 		if(HEADER -> signature != 0x4d42) {
 			return __INVALID_FILE_EXTENSION__;
 		}
-		if((size_t)(HEADER -> file_size) != IMG_FILE -> file_size) {
+		if((size_t)(HEADER -> file_size) != WORK_FILE -> file_size) {
 			return __INVALID_FILE_SIZE__;
 		}
 		if(HEADER -> padding != 0) {
@@ -25,9 +25,9 @@ static int header_read(	bmp_header_t	*HEADER,
 }
 
 static int info_header_read(	bmp_info_header_t	*INFO_HEADER,
-				file_t			*IMG_FILE	)
+				file_t			*WORK_FILE	)
 {
-	if(fread(INFO_HEADER, sizeof(bmp_info_header_t), 1, IMG_FILE -> file_ptr) == 1) {
+	if(fread(INFO_HEADER, sizeof(bmp_info_header_t), 1, WORK_FILE -> file_ptr) == 1) {
 		if(INFO_HEADER -> size != 40) {
 			return __INVALID_FILE_VALUE__;
 		}
@@ -88,29 +88,29 @@ static int data_24b_alloc(	bmp_data_24b_t		*DATA,
 static int data_24b_read(	bmp_data_24b_t		*DATA,
 				bmp_header_t		*HEADER,
 				bmp_info_header_t	*INFO_HEADER,
-				file_t			*IMG_FILE	)
+				file_t			*WORK_FILE	)
 {
 	size_t padding;
 	/* ==================== */
 	padding = data_padding_calculator(INFO_HEADER);
-	if(ftell(IMG_FILE -> file_ptr) != HEADER -> data_offset) {
-		fseek(IMG_FILE -> file_ptr, HEADER -> data_offset, SEEK_SET);
+	if(ftell(WORK_FILE -> file_ptr) != HEADER -> data_offset) {
+		fseek(WORK_FILE -> file_ptr, HEADER -> data_offset, SEEK_SET);
 	}
 	if(data_24b_alloc(DATA, INFO_HEADER) == __NO_ERROR__) {
 		for(uint32_t x = 0; x < INFO_HEADER -> height; x++) {
 			for(uint32_t y = 0; y < INFO_HEADER -> width; y++) {
-				if(fread(&(DATA -> blue)[x][y], sizeof(uint8_t), 1, IMG_FILE -> file_ptr) != 1) {
+				if(fread(&(DATA -> blue)[x][y], sizeof(uint8_t), 1, WORK_FILE -> file_ptr) != 1) {
 					return __FILE_READ_ERROR__;
 				}
-				if(fread(&(DATA -> green)[x][y], sizeof(uint8_t), 1, IMG_FILE -> file_ptr) != 1) {
+				if(fread(&(DATA -> green)[x][y], sizeof(uint8_t), 1, WORK_FILE -> file_ptr) != 1) {
 					return __FILE_READ_ERROR__;
 				}
-				if(fread(&(DATA -> red)[x][y], sizeof(uint8_t), 1, IMG_FILE -> file_ptr) != 1) {
+				if(fread(&(DATA -> red)[x][y], sizeof(uint8_t), 1, WORK_FILE -> file_ptr) != 1) {
 					return __FILE_READ_ERROR__;
 				}
 			}
 			if(x != INFO_HEADER -> height - 1) {
-				fseek(IMG_FILE -> file_ptr, padding, SEEK_CUR);
+				fseek(WORK_FILE -> file_ptr, padding, SEEK_CUR);
 			}
 		}
 		return __NO_ERROR__;
@@ -121,37 +121,37 @@ static int data_24b_read(	bmp_data_24b_t		*DATA,
 }
 
 static int header_write(	bmp_header_t	*HEADER,
-				file_t		*IMG_FILE,
-				imgdata_t	*IMAGE		)
+				file_t		*WORK_FILE,
+				imgdata_t	*WORK_IMGDATA		)
 {
 	HEADER -> signature = 0x4d42;
-	HEADER -> file_size = (uint32_t)(sizeof(bmp_header_t) + sizeof(bmp_info_header_t) + ((IMAGE -> width * IMAGE -> bitdepth) + (IMAGE -> width * IMAGE -> bitdepth) % 4) * IMAGE -> height);
+	HEADER -> file_size = (uint32_t)(sizeof(bmp_header_t) + sizeof(bmp_info_header_t) + ((WORK_IMGDATA -> width * WORK_IMGDATA -> bitdepth) + (WORK_IMGDATA -> width * WORK_IMGDATA -> bitdepth) % 4) * WORK_IMGDATA -> height);
 	HEADER -> padding = 0;
 	HEADER -> data_offset = sizeof(bmp_header_t) + sizeof(bmp_info_header_t);
-	if(fwrite(HEADER, sizeof(bmp_header_t), 1, IMG_FILE -> file_ptr) != 1) {
+	if(fwrite(HEADER, sizeof(bmp_header_t), 1, WORK_FILE -> file_ptr) != 1) {
 		return __FILE_WRITE_ERROR__;
 	}
 	return __NO_ERROR__;
 }
 
 static int info_header_write(	bmp_info_header_t	*INFO_HEADER,
-				file_t			*IMG_FILE,
-				imgdata_t		*IMAGE		)
+				file_t			*WORK_FILE,
+				imgdata_t		*WORK_IMGDATA		)
 {
 	int error = __NO_ERROR__;
 	/* ==================== */
 	INFO_HEADER -> size = sizeof(bmp_info_header_t);
-	INFO_HEADER -> width = (uint32_t)(IMAGE -> width);
-	INFO_HEADER -> height = (uint32_t)(IMAGE -> height);
+	INFO_HEADER -> width = (uint32_t)(WORK_IMGDATA -> width);
+	INFO_HEADER -> height = (uint32_t)(WORK_IMGDATA -> height);
 	INFO_HEADER -> planes = 1;
-	INFO_HEADER -> bits_per_pixel = (uint16_t)(IMAGE -> bitdepth * 8);
+	INFO_HEADER -> bits_per_pixel = (uint16_t)(WORK_IMGDATA -> bitdepth * 8);
 	INFO_HEADER -> compression = 0;
 	INFO_HEADER -> image_size = 0;
 	INFO_HEADER -> x_pixels_per_m = 0;
 	INFO_HEADER -> y_pixels_per_m = 0;
 	INFO_HEADER -> color_used = 0;
 	INFO_HEADER -> important_colors = 0;
-	if(fwrite(INFO_HEADER, sizeof(bmp_info_header_t), 1, IMG_FILE -> file_ptr) != 1) {
+	if(fwrite(INFO_HEADER, sizeof(bmp_info_header_t), 1, WORK_FILE -> file_ptr) != 1) {
 		return __FILE_WRITE_ERROR__;
 	}
 	return __NO_ERROR__;
@@ -160,30 +160,30 @@ static int info_header_write(	bmp_info_header_t	*INFO_HEADER,
 static int data_24b_write(	bmp_data_24b_t		*DATA,
 				bmp_header_t		*HEADER,
 				bmp_info_header_t	*INFO_HEADER,
-				file_t			*IMG_FILE	)
+				file_t			*WORK_FILE	)
 {
 	size_t	padding			;
 	uint8_t	padding_buffer = 0	;
 	/* ==================== */
-	if(ftell(IMG_FILE -> file_ptr) != HEADER -> data_offset) {
+	if(ftell(WORK_FILE -> file_ptr) != HEADER -> data_offset) {
 		return __FILE_WRITE_ERROR__;
 	}
 	padding = data_padding_calculator(INFO_HEADER);
 	for(uint32_t x = 0; x < INFO_HEADER -> height; x++) {
 		for(uint32_t y = 0; y < INFO_HEADER -> width; y++) {
-			if(fwrite(&(DATA -> blue)[x][y], sizeof(uint8_t), 1, IMG_FILE -> file_ptr) != 1) {
+			if(fwrite(&(DATA -> blue)[x][y], sizeof(uint8_t), 1, WORK_FILE -> file_ptr) != 1) {
 				return __FILE_WRITE_ERROR__;
 			}
-			if(fwrite(&(DATA -> green)[x][y], sizeof(uint8_t), 1, IMG_FILE -> file_ptr) != 1) {
+			if(fwrite(&(DATA -> green)[x][y], sizeof(uint8_t), 1, WORK_FILE -> file_ptr) != 1) {
 				return __FILE_WRITE_ERROR__;
 			}
-			if(fwrite(&(DATA -> red)[x][y], sizeof(uint8_t), 1, IMG_FILE -> file_ptr) != 1) {
+			if(fwrite(&(DATA -> red)[x][y], sizeof(uint8_t), 1, WORK_FILE -> file_ptr) != 1) {
 				return __FILE_WRITE_ERROR__;
 			}
 		}
 		if(x != INFO_HEADER -> height - 1 || padding != 0) {
 			for(size_t i = 0; i < padding; i++) {
-				if(fwrite(&padding_buffer, sizeof(uint8_t), 1, IMG_FILE -> file_ptr) != 1) {
+				if(fwrite(&padding_buffer, sizeof(uint8_t), 1, WORK_FILE -> file_ptr) != 1) {
 					return __FILE_WRITE_ERROR__;
 				}
 			}
